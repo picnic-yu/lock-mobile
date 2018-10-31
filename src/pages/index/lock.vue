@@ -4,32 +4,15 @@
             <span class='input-wrap'>
                 <div class="input-box">
                     <span class="icon"></span>
-                    <input type="text" class="search-input" placeholder="">
-                    <span class="icon-clear"></span>
+                    <input type="text" @input='handleInputChange' v-model="params.keyWords" class="search-input" placeholder="">
+                    <span class="icon-clear" v-if='params.keyWords' @click='handleClear'></span>
                 </div>
             </span>
             <span class='sure'>
                 确定
             </span>
         </div>
-        <div class="state-wrap">
-            
-            <div class="item ">
-                <div class="btn" :class="params.status==null ? 'active' : '' " @click='handleGetList(null)'>全部</div>
-            </div>
-            <div class="item ">
-                <div class="btn" :class="params.status==0 ? 'active' : '' " @click='handleGetList(0)'>未实名</div>
-            </div>
-            <div class="item ">
-                <div class="btn" :class="params.status==2 ? 'active' : '' " @click='handleGetList(2)'>待审核</div>
-            </div>
-            <div class="item ">
-                <div class="btn" :class="params.status==3 ? 'active' : '' " @click='handleGetList(3)'>已实名</div>
-            </div>
-            <div class="item ">
-                <div class="btn" :class="params.status==1 ? 'active' : '' " @click='handleGetList(1)'>未通过</div>
-            </div>
-        </div>
+       
         <div class="content">
             <ul
                 v-infinite-scroll="loadMore"
@@ -37,30 +20,30 @@
                 infinite-scroll-distance="10">
                 <li class='item title' >
                     <span class='number'>
-                        zasd
+                        锁具ID
                     </span>
                      <span>
-                        zasd
+                        操作时间
                     </span>
                      <span>
-                        zasd
+                        执行人
                     </span>
                      <span>
-                        zasd
+                        动作
                     </span>
                 </li>
-                <li class='item' v-for="item in list" :key='item'>
+                <li class='item list-content' v-for="item in listData" :key='item.id'>
                     <span class='number'>
-                        zasd
+                        {{item.lockId}}
                     </span>
                      <span>
-                        zasd
+                        {{item.displayAT.slice(5,10)}}
                     </span>
                      <span>
-                        zasd
+                        {{item.executorName}}
                     </span>
                      <span>
-                        zasd
+                        {{item.displayActionType}}
                     </span>
                 </li>
             </ul>
@@ -73,6 +56,7 @@
 import { InfiniteScroll } from 'mint-ui';
 import Vue from 'vue';
 import cusInput from 'common/cus-input'
+import {getUnlockList} from 'api/unlock'
 Vue.use(InfiniteScroll);
 export default {
     components: {
@@ -84,10 +68,13 @@ export default {
     data() {
         return {
             loading:false,
-            list:[1,2,3,4,5,6,7,8,9,10,11,12],
+            listData:[],
             params:{
-                status:null
-            }
+                keyWords:'',
+                pageNumber:0,
+                pageSize:20
+            },
+            total:0
         }
 
     },
@@ -96,22 +83,45 @@ export default {
 
     methods: {
         loadMore() {
+            if(this.listData.length>=this.total) return;
             this.loading = true;
-            setTimeout(() => {
-                let last = this.list[this.list.length - 1];
-                for (let i = 1; i <= 10; i++) {
-                this.list.push(last + i);
+            this.params.pageNumber += 1;
+            getUnlockList(this.params).then(res=>{
+
+                if(res.code == 200){
+                    this.listData.push(...res.content.data) ;
                 }
                 this.loading = false;
-            }, 2500);
+            }).catch(()=>{
+               this.loading = false;
+            })
         },
-        handleGetList(status){
-            this.params.status = status;
+       
+        handleClear(){
+            this.params.keyWords = '';
+            this.getList();
+        },
+        handleInputChange(){
+           this.getList();
+        },
+        getList(){
+            getUnlockList(this.params).then(res=>{
 
+                if(res.code == 200){
+                    this.listData = res.content.data;
+                    this.total = res.content.rowCount;
+                }else{
+                    this.total = 0
+                    this.listData = [];
+                }
+            }).catch(()=>{
+               this.listData = [];
+            })
         }
     },
-
+    
     mounted() {
+        this.getList();
         // this.loadMore();
     },
 
@@ -174,37 +184,20 @@ export default {
                 padding:0 3px;
             }
         }
-        .state-wrap{
-            background: #fff;
-            height:1.2rem;
-            width:100%;
-            display: flex; 
-            .item{
-                flex: 1;
-                padding:3px;
-                .active{
-                    background: #2d8cf0;
-                    color:#fff;
-                }
-                .btn{
-                    height:0.8rem;
-                    width:90%;
-                    margin:0.2rem 5%;
-                    border:1px solid #2d8cf0;
-                    border-radius: 3px;
-                    box-sizing: border-box;
-                    line-height: 0.8rem;
-                }
-            }
-        }
+        
         .content{
             background: #fff;
-            height:calc(~"100% - 2.2rem");
+            height:calc(~"100% - 1rem");
             width:100%;
             overflow: auto;
             .title{
                 background-color: rgba(211, 211, 211, 1);
                 position:fixed;
+            }
+            .list-content{
+                .number{
+                    color:#2d8cf0;
+                }
             }
             .item{
                 height:1rem;
@@ -216,11 +209,12 @@ export default {
                 margin:0 auto;
                 padding:0 .2rem;
                 span{
-                    flex:1
+                    flex:1;
+                    // 超过文本省略号显示
+                    overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
                 }
                 .number{
                     flex:2;
-                    
                 }
             }
         }
