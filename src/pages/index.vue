@@ -21,20 +21,16 @@ export default {
     return {
       navList: [
         {
-          'path': '/home',
-          'name': '推荐'
+          'path': '/user',
+          'name': '用户管理'
         },
         {
-          'path': '/story',
-          'name': '故事'
+          'path': '/lock',
+          'name': '开关记录'
         },
         {
-          'path': '/footprints',
-          'name': '足迹'
-        },
-        {
-          'path': '/day',
-          'name': '纪念日'
+          'path': '/auth',
+          'name': '授权记录'
         }
       ]
     }

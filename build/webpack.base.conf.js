@@ -40,11 +40,12 @@ module.exports = {
       'api': resolve('src/api'),
       'styles': resolve('src/styles'),
       'common': resolve('src/components'),
+      'util':resolve('src/util')
     }
   },
   module: {
     rules: [
-      ...(config.dev.useEslint ? [createLintingRule()] : []),
+      // ...(config.dev.useEslint ? [createLintingRule()] : []),
       {
         test: /\.vue$/,
         loader: 'vue-loader',

@@ -14,6 +14,21 @@ export default {
       transitionName: ''
     }
   },
+  methods:{
+    init(){
+      var token = this.getQueryString('token').slice(0,-1);
+      this.$store.commit('UPDATE_TOKEN',token);
+    },
+    getQueryString(name) {  
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");  
+        var r = window.location.search.substr(1).match(reg);  
+        if (r != null) return unescape(r[2]);  
+        return null;  
+    }  
+  },
+  mounted(){
+    this.init();
+  },
   watch: {
     $route() {
       if (this.$router.isleft) {
@@ -29,6 +44,7 @@ export default {
 
 <style lang="less">
 @import "~styles/variable.less";
+@import "~styles/reset.less";
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -35,27 +35,22 @@ export default new Router({
       path: '/',
       name: 'index',
       component: (resolve) => require(['@/pages/index'], resolve),
-      redirect: '/home',
+      redirect: '/user',
       children: [
         {
-          path: '/home',
-          name: 'home',
-          component: (resolve) => require(['@/pages/index/home'], resolve)
+          path: '/user',
+          name: 'user',
+          component: (resolve) => require(['@/pages/index/user'], resolve)
         },
         {
-          path: '/story',
-          name: 'story',
-          component: (resolve) => require(['@/pages/index/story'], resolve)
+          path: '/lock',
+          name: 'lock',
+          component: (resolve) => require(['@/pages/index/lock'], resolve)
         },
         {
-          path: '/footprints',
-          name: 'footprints',
-          component: (resolve) => require(['@/pages/index/footprints'], resolve)
-        },
-        {
-          path: '/day',
-          name: 'day',
-          component: (resolve) => require(['@/pages/index/day'], resolve)
+          path: '/auth',
+          name: 'auth',
+          component: (resolve) => require(['@/pages/index/auth'], resolve)
         }
       ]
     },
