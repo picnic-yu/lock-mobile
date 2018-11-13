@@ -11,7 +11,7 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-        '/lock-api': { target: 'http://172.16.10.83:8082' }
+        '/lock-api': { target: 'http://172.16.10.80:8082' }
     },
 
     // Various Dev Server settings

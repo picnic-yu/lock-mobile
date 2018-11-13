@@ -51,3 +51,10 @@ export function fetch(requestUrl, params = '') {
     data:params
   })
 }
+// 封装post请求
+export function get(requestUrl) {
+  return axios({
+    url: requestUrl,
+    method: 'get',
+  })
+}

@@ -55,9 +55,10 @@ export default new Router({
       ]
     },
     {
-      path: '/Home/Detail',
-      name: 'Detail',
-      component: (resolve) => require(['@/pages/detail'], resolve)
+      path: '/feedback',
+      name: 'feedback',
+      component: (resolve) => require(['@/pages/feedback/index.vue'], resolve),
+      
     }
   ]
 })

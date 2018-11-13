@@ -132,6 +132,7 @@ export default {
 
                 if(res.code == 200){
                     this.listData = res.content.data;
+                    console.log(this.listData)
                     this.total = res.content.rowCount;
                 }else{
                     this.total = 0
