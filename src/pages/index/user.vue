@@ -248,7 +248,7 @@ export default {
             .item{
                 height:1rem;
                 line-height: 1rem;
-                width:95%;
+                width:100%;
                 display: flex;
                 border-bottom: 1px solid #e6e6e6;
                 text-align: left;

@@ -19,7 +19,7 @@
                 infinite-scroll-disabled="loading"
                 infinite-scroll-distance="10">
                 <li class='item title' >
-                    <span class='number'>
+                    <span class='number' >
                         锁具ID
                     </span>
                      <span>
@@ -33,7 +33,7 @@
                     </span>
                 </li>
                 <li class='item list-content' v-for="item in listData" :key='item.id'>
-                    <span class='number'>
+                    <span class='number' @click='handlePreview(item)'>
                         {{item.lockId}}
                     </span>
                      <span>
@@ -48,6 +48,39 @@
                 </li>
             </ul>
             
+        </div>
+        <div class="mark" v-if='detailStatus'>
+            <div class="content-wrap">
+                <div class="mark-content">
+                    <p class='title'>
+                        <span>锁具ID：</span>
+                        <span>{{detailItem.lockId}}</span>
+                    </p>
+                    <p>
+                        <span>地址：</span>
+                        <span>{{detailItem.locationAddress}}</span>
+                    </p>
+                    <p>
+                        <span>执行人：</span>
+                        <span>{{detailItem.executorName}}</span>
+                    </p>
+                    <p>
+                        <span>工作任务：</span>
+                        <span>{{detailItem.displayTaskType}}</span>
+                    </p>
+                    <p>
+                        <span>锁具动作：</span>
+                        <span>{{detailItem.displayActionType}}</span>
+                    </p>
+                    <p>
+                        <span>操作时间：</span>
+                        <span>{{detailItem.displayAT}}</span>
+                    </p>
+                </div>
+                <div class="btn" @click='closeDetail'>
+                    确定
+                </div>
+            </div>
         </div>
     </section>
 </template>
@@ -74,7 +107,9 @@ export default {
                 pageNumber:0,
                 pageSize:20
             },
-            total:0
+            total:0,
+            detailStatus:false,
+            detailItem:{}
         }
 
     },
@@ -82,6 +117,14 @@ export default {
     watch: {},
 
     methods: {
+        handlePreview(row){
+            this.detailStatus = true;
+            this.detailItem = row;
+        },
+        // 关闭查看
+        closeDetail(){
+            this.detailStatus = false;
+        },
         loadMore() {
             if(this.listData.length>=this.total) return;
             this.loading = true;
@@ -202,7 +245,7 @@ export default {
             .item{
                 height:1rem;
                 line-height: 1rem;
-                width:95%;
+                width:100%;
                 display: flex;
                 border-bottom: 1px solid #e6e6e6;
                 text-align: left;
@@ -216,6 +259,52 @@ export default {
                 .number{
                     flex:2;
                 }
+            }
+        }
+        .mark{
+            position:fixed;
+            left:0;
+            top:0;
+            // opacity:.5;
+            width:100%;
+            height:100%;
+            // background:#000;
+            z-index:998;
+            // pointer-events: none; //不能操作
+            .content-wrap{
+                position:fixed;
+                left:10%;
+                top:20%;
+                width:80%;
+                background:#fff;
+                z-index:999;
+                box-sizing: border-box;
+                border: 1px solid rgba(68, 138, 255, 1);
+                .b-radius(14);
+                .mark-content{
+                    text-align: left;
+                    .pt(15);
+                    .pl(20);
+                    .pr(20);
+                    .pb(15);
+                    p{
+                        .lh(40);
+                        color:#AEAEAE;
+                        overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
+                    }
+                    .title{
+                        .lh(70);
+                        color:#333;
+                    }
+                }
+                .btn{
+                    .h(100);
+                    .lh(100);
+                    color:rgba(68, 138, 255, 1);
+                    .border-before-1px(#e6e6e6);
+                    text-align: center;
+                }
+                
             }
         }
     }

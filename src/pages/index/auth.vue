@@ -52,8 +52,8 @@
                         状态
                     </span>
                 </li>
-                <li class='item list-content' v-for="item in listData" :key='item.id'>
-                    <span class='number'>
+                <li class='item list-content' v-for="item in authList" :key='item.id'>
+                    <span class='number' @click='handlePreview(item)'>
                         {{item.lockId}}
                     </span>
                      <span>
@@ -71,6 +71,48 @@
                 </li>
             </ul>
             
+        </div>
+
+        <div class="mark" v-if='detailStatus'>
+            <div class="content-wrap">
+                <div class="mark-content">
+                    <p class='title'>
+                        <span>锁具ID：</span>
+                        <span>{{detailItem.lockId}}</span>
+                    </p>
+                    <p>
+                        <span>地址：</span>
+                        <span>{{detailItem.lockInfo.locationAddress}}</span>
+                    </p>
+                    <p>
+                        <span>申请人：</span>
+                        <span>{{detailItem.applyName}}</span>
+                    </p>
+                    <p>
+                        <span>工作任务：</span>
+                        <span>{{detailItem.displayTaskType}}</span>
+                    </p>
+                    <p>
+                        <span>申请时间：</span>
+                        <span>{{detailItem.displayApplyTime}}</span>
+                    </p>
+                    <p>
+                        <span>授权人：</span>
+                        <span>{{detailItem.authorizerName}}</span>
+                    </p>
+                    <p class='title'>
+                        <span>授权时间：</span>
+                        <span>{{detailItem.displayAuthTime}}</span>
+                    </p>
+                    <p>
+                        <span>授权状态：</span>
+                        <span>{{detailItem.displayStatus}}</span>
+                    </p>
+                </div>
+                <div class="btn" @click='closeDetail'>
+                    确定
+                </div>
+            </div>
         </div>
     </section>
 </template>
@@ -91,34 +133,44 @@ export default {
     data() {
         return {
             loading:false,
-            listData:[],
+            authList:[],
             params:{
                 status:null,
                 keyWords:'',
                 pageNumber:0,
                 pageSize:20
             },
-            total:0
+            total:0,
+            detailStatus:false,
+            detailItem:{}
         }
 
     },
 
-    watch: {},
+    watch: {
+        authList(val){
+            console.table(val)
+        }
+    },
 
     methods: {
         loadMore() {
-            if(this.listData.length>=this.total) return;
+            if(this.authList.length>=this.total) return;
             this.loading = true;
             this.params.pageNumber += 1;
             getAuthList(this.params).then(res=>{
 
                 if(res.code == 200){
-                    this.listData.push(...res.content.data) ;
+                    this.authList.push(...res.content.data) ;
                 }
                 this.loading = false;
             }).catch(()=>{
                this.loading = false;
             })
+        },
+        handlePreview(row){
+            this.detailStatus = true;
+            this.detailItem = row;
         },
         handleGetList(status){
             this.params.status = status;
@@ -133,18 +185,24 @@ export default {
         handleInputChange(){
            this.getList();
         },
+        // 关闭查看
+        closeDetail(){
+            alert(333)
+            this.detailStatus = false;
+        },
         getList(){
             getAuthList(this.params).then(res=>{
 
                 if(res.code == 200){
-                    this.listData = res.content.data;
+                    this.authList = res.content.data;
                     this.total = res.content.rowCount;
                 }else{
                     this.total = 0
-                    this.listData = [];
                 }
-            }).catch(()=>{
-               this.listData = [];
+                console.log(this.authList)
+            }).catch((e)=>{
+               
+               console.log(e)
             })
         }
     },
@@ -159,6 +217,7 @@ export default {
 
 <style lang='less' scoped>
 @import "~styles/index.less";
+@import "~styles/mixin.less";
 @import "~styles/variable.less";
 .input-box{
   position: relative;
@@ -253,7 +312,7 @@ export default {
             .item{
                 height:1rem;
                 line-height: 1rem;
-                width:95%;
+                width:100%;
                 display: flex;
                 border-bottom: 1px solid #e6e6e6;
                 text-align: left;
@@ -267,6 +326,55 @@ export default {
                 .number{
                     flex:2;
                 }
+            }
+        }
+
+
+        .mark{
+            position:fixed;
+            left:0;
+            top:0;
+            // opacity:.5;
+            width:100%;
+            height:100%;
+            // background:#000;
+            z-index:998;
+            // pointer-events: none; //不能操作
+            .content-wrap{
+                position:fixed;
+                left:10%;
+                top:20%;
+                width:80%;
+                background:#fff;
+                z-index:999;
+                box-sizing: border-box;
+                border: 1px solid rgba(68, 138, 255, 1);
+                .b-radius(14);
+                .mark-content{
+                    text-align: left;
+                    .pt(15);
+                    .pl(20);
+                    .pr(20);
+                    .pb(15);
+                    p{
+                        .lh(40);
+                        color:#AEAEAE;
+                        overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
+                    }
+                    .title{
+                        .lh(70);
+                        color:#333;
+                    }
+                }
+                .btn{
+                    .h(100);
+                    .lh(100);
+                    color:rgba(68, 138, 255, 1);
+                    .border-before-1px(#e6e6e6);
+                    text-align: center;
+                    z-index: 888888888888;
+                }
+                
             }
         }
     }
