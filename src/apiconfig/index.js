@@ -58,3 +58,11 @@ export function get(requestUrl) {
     method: 'get',
   })
 }
+// 封装post请求
+export function put(requestUrl, params = '') {
+  return axios({
+    url: requestUrl,
+    method: 'put',
+    data:params
+  })
+}

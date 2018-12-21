@@ -129,7 +129,8 @@ export default {
         },
         handlePreview(row){
             this.$router.push({
-                name:'detail'
+                name:'detail',
+                params:row
             })
         },
         getList(){
