@@ -3,12 +3,12 @@
         <div class="search">
             <span class='input-wrap'>
                 <div class="input-box">
-                    <span class="icon"></span>
+                    <span class="icon" @click='handleInputChange'></span>
                     <input type="text" @input='handleInputChange' v-model="params.keyWords" class="search-input" placeholder="">
                     <span class="icon-clear" v-if='params.keyWords' @click='handleClear'></span>
                 </div>
             </span>
-            <span class='sure'>
+            <span class='sure' @click='handleInputChange'>
                 确定
             </span>
         </div>
@@ -50,7 +50,7 @@
                     </span>
                 </li>
                 <li class='item list-content' v-for="item in listData" :key='item.id'>
-                    <span class='number'>
+                    <span class='number' @click='handlePreview(item)'>
                         {{item.personNameMobile}}
                     </span>
                      <span>
@@ -127,12 +127,16 @@ export default {
         handleInputChange(){
            this.getList();
         },
+        handlePreview(row){
+            this.$router.push({
+                name:'detail'
+            })
+        },
         getList(){
             getCertifications(this.params).then(res=>{
 
                 if(res.code == 200){
                     this.listData = res.content.data;
-                    console.log(this.listData)
                     this.total = res.content.rowCount;
                 }else{
                     this.total = 0

@@ -1,6 +1,6 @@
 <template>
-    <section class='feedback'>
-       {{helpContent}}
+    <section class='feedback' v-html='helpContent'>
+       
     </section>
 </template>
 

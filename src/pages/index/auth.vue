@@ -3,12 +3,12 @@
         <div class="search">
             <span class='input-wrap'>
                 <div class="input-box">
-                    <span class="icon"></span>
+                    <span class="icon" @click='handleInputChange'></span>
                     <input type="text" @input='handleInputChange' v-model="params.keyWords" class="search-input" placeholder="">
                     <span class="icon-clear" v-if='params.keyWords' @click='handleClear'></span>
                 </div>
             </span>
-            <span class='sure'>
+            <span class='sure' @click='handleInputChange'>
                 确定
             </span>
         </div>
@@ -187,7 +187,6 @@ export default {
         },
         // 关闭查看
         closeDetail(){
-            alert(333)
             this.detailStatus = false;
         },
         getList(){

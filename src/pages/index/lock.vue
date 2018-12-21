@@ -3,12 +3,12 @@
         <div class="search">
             <span class='input-wrap'>
                 <div class="input-box">
-                    <span class="icon"></span>
+                    <span class="icon" @click='handleInputChange'></span>
                     <input type="text" @input='handleInputChange' v-model="params.keyWords" class="search-input" placeholder="">
                     <span class="icon-clear" v-if='params.keyWords' @click='handleClear'></span>
                 </div>
             </span>
-            <span class='sure'>
+            <span class='sure' @click='handleInputChange'>
                 确定
             </span>
         </div>
@@ -61,9 +61,18 @@
                         <span>{{detailItem.locationAddress}}</span>
                     </p>
                     <p>
+                        <span>设施名称</span>
+                        <span>{{detailItem.lockInfo.facilityName}}</span>
+                    </p>
+                    <p>
+                        <span>位置编号</span>
+                        <span>{{detailItem.lockInfo.locationCode}}</span>
+                    </p>
+                    <p>
                         <span>执行人：</span>
                         <span>{{detailItem.executorName}}</span>
                     </p>
+                    
                     <p>
                         <span>工作任务：</span>
                         <span>{{detailItem.displayTaskType}}</span>
@@ -139,7 +148,6 @@ export default {
                this.loading = false;
             })
         },
-       
         handleClear(){
             this.params.keyWords = '';
             this.getList();
