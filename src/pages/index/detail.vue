@@ -1,9 +1,20 @@
 <template>
   <section class="page">
+    <van-cell-group class='avater-wrap'>
+      <span class="avater">
+        <img :src="formData.userPhoto" alt="头像">
+      </span>
+      <span class='name-wrap'>
+        <span class='name'>{{formData.personName}}</span>
+        <span class='phone'>{{formData.mobileNumber}}</span>
+      </span>
+      
+    </van-cell-group>
     <van-cell-group>
       <van-field
         v-model="formData.companyName"
         label="工作单位："
+        disabled='formData.status=="2"'
         placeholder="请输入工作单位"
       />
     </van-cell-group>
@@ -25,34 +36,84 @@
         @click='handleSelectRole'
       />
     </van-cell-group>
-    <van-cell-group>
-      <van-field
-        v-model="formData.documentNumber"
-        label="证件号码："
-        placeholder="请输入证件号码"
-      />
-    </van-cell-group>
-    <van-cell-group>
-      <van-field
-        v-model="formData.documentAddress"
-        label="证件地址："
-        placeholder="请输入证件地址"
-      />
-    </van-cell-group>
+    <van-collapse v-model="activeNames" style='margin-top:5px'>
+      <van-collapse-item title="实名信息" name="1" style='text-align:left'>
+        <div class="img-item">
+          <div class="dec">
+            <span>身份证正面</span>
+          </div>
+          <div class="img-wrap">
+            <img :src="formData.facadePhoto" alt="身份证正面">
+          </div>
+        </div>
+        <div class="img-item">
+          <div class="dec">
+            <span>身份证背面</span>
+          </div>
+          <div class="img-wrap">
+            <img :src="formData.backPhoto" alt="身份证背面">
+          </div>
+        </div>
+        <div class="img-item">
+          <div class="dec">
+            <span>手持身份证</span>
+          </div>
+          <div class="img-wrap">
+            <img :src="formData.handheldPhoto" alt="手持身份证">
+          </div>
+        </div>
+        <div class="img-item">
+          <div class="dec">
+            <span>附件1</span>
+          </div>
+          <div class="img-wrap">
+            <img :src="formData.attachment1" alt="附件1">
+          </div>
+        </div>
+        <div class="img-item">
+          <div class="dec">
+            <span>附件2</span>
+          </div>
+          <div class="img-wrap">
+            <img :src="formData.attachment2" alt="附件2">
+          </div>
+        </div>
+        <van-cell-group>
+          <van-field
+            v-model="formData.documentNumber"
+            label="证件号码："
+            disabled='formData.status=="2"'
+            placeholder="请输入证件号码"
+          />
+        </van-cell-group>
+        <van-cell-group>
+          <van-field
+            v-model="formData.documentAddress"
+            label="证件地址："
+            disabled='formData.status=="2"'
+            placeholder="请输入证件地址"
+          />
+        </van-cell-group>
+        <p style='text-align: left;padding:.1rem 0.5rem;font-size:0.45rem;'>状态</p>
+        <van-radio-group v-model="formData.status" disabled='formData.status=="2"'>
+          <van-cell-group>
+            <van-cell title="已实名" clickable @click="formData.status = '2'" style='text-align: left;padding-left:0.5rem'>
+              <van-radio name="2" />
+            </van-cell>
+            <van-cell title="通过" clickable @click="formData.status = '3'" style='text-align: left;padding-left:0.5rem'>
+              <van-radio name="3" />
+            </van-cell>
+            <van-cell title="不予通过" clickable @click="formData.status = '1'" style='text-align: left;padding-left:0.5rem'>
+              <van-radio name="1" />
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </van-collapse-item>
+    </van-collapse>
     <div class="button-wrap">
       <van-button size='large' @click='handleSubmit' :loading='saveloading' type="primary" style='margin-bottom:5px'>保存并返回</van-button>
       <van-button type="default" size='large' @click='handleBack'>返回</van-button>
-
     </div>
-
-
-
-
-
-
-
-
-
     <van-popup v-model="roleStatus" position="bottom" :overlay="true">
       <van-picker
         show-toolbar
@@ -84,12 +145,13 @@
 <script >
 
 import Vue from 'vue'
-import { Field } from 'vant';
+import { Collapse, CollapseItem,Field,Picker,Toast,Popup,RadioGroup, Radio,Cell,CellGroup } from 'vant';
 
-import { Picker } from 'vant';
-import { Toast } from 'vant';
-
-import { Popup } from 'vant';
+Vue.use(RadioGroup);
+Vue.use(Radio);
+Vue.use(Cell);
+Vue.use(CellGroup);
+Vue.use(Collapse).use(CollapseItem);
 Vue.use(Field);
 Vue.use(Popup);
  
@@ -113,7 +175,9 @@ export default {
       roleList:[],
       roleColumns:[],
       roleStatus:false,
-      saveloading:false
+      saveloading:false,
+      activeNames:['1'],
+      radio:'1'
     }
 
   },
@@ -125,7 +189,6 @@ export default {
       this.show = false;
       this.formData.organizationName = value;
       this.formData.organizationId = this.organizationList[index].id;
-      console.log(this.formData.organizationId)
       // Toast(`当前值：${value}, 当前索引：${index}`);
     },
     onCancel() {
@@ -143,9 +206,11 @@ export default {
       // Toast('取消');
     },
     handleSelectOrganize(){
+      if(this.formData.status =='2') return;
       this.show = true;
     },
     handleSelectRole(){
+      if(this.formData.status =='2') return;
       this.roleStatus = true;
     },
     handleSubmit(){
@@ -191,11 +256,11 @@ export default {
           });
         }
     })
-    console.log(this.$route.params)
     getUserInfo(this.$route.params.id).then(res=>{
         if(res.code == 200){
           this.formData = res.content;
           this.formData.organizationName =res.content.organizationInfo.organizationName; 
+          this.formData.status = this.formData.status + '';
         }else{
             
         }
@@ -208,7 +273,65 @@ export default {
 </script>
 
 <style lang='less' scoped>
+
 .button-wrap{
   padding:10px;
+}
+.avater-wrap{
+  padding:.2rem .8rem;
+  text-align: left;
+  span{
+    display: inline-block;
+  }
+  .avater{
+    width:1.6rem;
+    height:1.6rem;
+    border-radius: 50%;
+    vertical-align: middle;
+    img{
+      width:100%;
+      height:100%;
+      display: inline-block;
+      border-radius: 50%;
+    }
+  }
+  .name-wrap{
+    width:5rem;
+    height:1.6rem;
+    vertical-align: middle;
+    padding-left:.4rem;
+    box-sizing: border-box;
+    .name{
+      width:5rem;
+      line-height: 1rem;
+    }
+    .phone{
+      width:5rem;
+      line-height: .6rem;
+    }
+  }
+  
+}
+.img-item{
+  .dec{
+    padding: 0 10px;
+    span{
+      display: inline-block;
+      padding:3px 5px;
+      border-radius: 10%;
+      background-color: rgba(246, 247, 246, 1);
+      border: 1px solid rgba(235, 235, 235, 1);
+    }
+  }
+  .img-wrap{
+    width:4rem;
+    height:4rem;
+    border:1px solid rgba(235, 235, 235, 1);
+    margin: .3rem auto;
+    img{
+      width:100%;
+      height:100%;
+    }
+  }
 }
 </style>
