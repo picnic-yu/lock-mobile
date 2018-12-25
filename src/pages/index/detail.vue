@@ -14,7 +14,7 @@
       <van-field
         v-model="formData.companyName"
         label="工作单位："
-        disabled='formData.status=="2"'
+        :disabled='formData.status=="3"'
         placeholder="请输入工作单位"
       />
     </van-cell-group>
@@ -36,8 +36,30 @@
         @click='handleSelectRole'
       />
     </van-cell-group>
+    <van-cell-group>
+      <van-field
+        label="管理锁具："
+        placeholder="请选择锁具"
+        readonly
+        @click='handleSelectLock'
+      />
+    </van-cell-group>
+    <div style='position:relative'>
+      <div v-if='loadingLock' class="loading" style='position:absolute;top:50%;left:50%;margin-left:-.25rem;margin-top:-.25rem; z-index:222;width:.5rem;height:.5rem'>
+        <van-loading />
+      </div>
+      
+      <div style='padding:.3rem 0 !important;background:#fff;' class='lockitem' v-for='(item,index) in lockList' :key='item.id'>
+        <span class='lock-text'>
+          {{item.lockId}}
+        </span>
+        <span class="icon-clear" @click='handleDeleteLock(index)'></span>
+        
+      </div>
+    </div>
+    
     <van-collapse v-model="activeNames" style='margin-top:5px'>
-      <van-collapse-item title="实名信息" name="1" style='text-align:left'>
+      <van-collapse-item :title="statusTitle" name="1" style='text-align:left'>
         <div class="img-item">
           <div class="dec">
             <span>身份证正面</span>
@@ -82,7 +104,7 @@
           <van-field
             v-model="formData.documentNumber"
             label="证件号码："
-            disabled='formData.status=="2"'
+            :disabled='formData.status=="3"'
             placeholder="请输入证件号码"
           />
         </van-cell-group>
@@ -90,18 +112,18 @@
           <van-field
             v-model="formData.documentAddress"
             label="证件地址："
-            disabled='formData.status=="2"'
+            :disabled='formData.status=="3"'
             placeholder="请输入证件地址"
           />
         </van-cell-group>
         <p style='text-align: left;padding:.1rem 0.5rem;font-size:0.45rem;'>状态</p>
-        <van-radio-group v-model="formData.status" disabled='formData.status=="2"'>
+        <van-radio-group v-model="formData.status" :disabled='formData.status=="3"'>
           <van-cell-group>
-            <van-cell title="已实名" clickable @click="formData.status = '2'" style='text-align: left;padding-left:0.5rem'>
-              <van-radio name="2" />
-            </van-cell>
-            <van-cell title="通过" clickable @click="formData.status = '3'" style='text-align: left;padding-left:0.5rem'>
+            <van-cell title="已实名" clickable @click="formData.status = '3'" style='text-align: left;padding-left:0.5rem'>
               <van-radio name="3" />
+            </van-cell>
+            <van-cell title="通过" clickable @click="formData.status = '2'" style='text-align: left;padding-left:0.5rem'>
+              <van-radio name="2" />
             </van-cell>
             <van-cell title="不予通过" clickable @click="formData.status = '1'" style='text-align: left;padding-left:0.5rem'>
               <van-radio name="1" />
@@ -137,6 +159,17 @@
         @confirm="onConfirm"
       />
     </van-popup>
+    <van-popup v-model="lockStatus" position="bottom" :overlay="true">
+      <van-picker
+        show-toolbar
+        title="选择锁具ID"
+        confirm-button-text='确认'
+        cancel-button-text='取消'
+        :columns="lockColumns"
+        @cancel="onCancelLock"
+        @confirm="onConfirmLock"
+      />
+    </van-popup>
 
     
   </section>
@@ -146,7 +179,11 @@
 
 import Vue from 'vue'
 import { Collapse, CollapseItem,Field,Picker,Toast,Popup,RadioGroup, Radio,Cell,CellGroup } from 'vant';
+import { Row, Col } from 'vant';
+import { Loading } from 'vant';
 
+Vue.use(Loading);
+Vue.use(Row).use(Col);
 Vue.use(RadioGroup);
 Vue.use(Radio);
 Vue.use(Cell);
@@ -159,7 +196,7 @@ Vue.use(Picker);
 
 Vue.use(Toast);
 
-import {getUserInfo, getOrgList,getRoleListOfOrganization, editCertification} from 'api/certification'
+import {getUserInfo, getOrgList,getRoleListOfOrganization, editCertification,getLocks,getAllLocks,addLock,deleteLock} from 'api/certification'
 export default {
   components: {},
 
@@ -177,7 +214,17 @@ export default {
       roleStatus:false,
       saveloading:false,
       activeNames:['1'],
-      radio:'1'
+      radio:'1',
+      statusTitle:'',
+      lockList:[{
+        text:"222"
+      },{
+        text:"2232322"
+      }],
+      lockStatus:false,
+      allLockList: ['杭州', '宁波', '温州', '嘉兴', '湖州'],
+      lockColumns:[],
+      loadingLock:false
     }
 
   },
@@ -195,6 +242,36 @@ export default {
       this.show = false;
       // Toast('取消');
     },
+    onCancelLock(){
+      this.lockStatus = false;
+    },
+    handleDeleteLock(index){
+      deleteLock(this.lockList[index].id).then(res=>{
+        if(res.code ==204){
+          Toast('删除成功');
+          this.handleGetLocks();
+        }else{
+          Toast('删除失败');
+        }
+      }).catch((e)=>{
+        Toast('删除失败');
+      })
+    },
+    onConfirmLock(value, index){
+      this.lockStatus = false;
+      const principalId = this.$route.params.id;
+      const lockInfoId = this.allLockList[index].id;
+      addLock({lockInfoId,principalId}).then(res=>{
+        if(res.code ==200){
+          Toast('保存成功');
+          this.handleGetLocks();
+        }else{
+          Toast('保存失败');
+        }
+      }).catch((e)=>{
+        Toast('保存失败');
+      })
+    },
     roleConfirm(value, index) {
       this.roleStatus = false;
       this.formData.roleName = value;
@@ -206,13 +283,17 @@ export default {
       // Toast('取消');
     },
     handleSelectOrganize(){
-      if(this.formData.status =='2') return;
+      if(this.formData.status =='3') return;
       this.show = true;
     },
     handleSelectRole(){
-      if(this.formData.status =='2') return;
+      if(this.formData.status =='3') return;
       this.roleStatus = true;
     },
+    handleSelectLock(){
+      this.lockStatus = true;
+    },
+    
     handleSubmit(){
       this.saveloading = true;
       editCertification(this.formData).then(res=>{
@@ -233,6 +314,17 @@ export default {
     handleBack(){
       this.$router.push({
         name:'user',
+      })
+    },
+    handleGetLocks(){
+      this.loadingLock = true;
+      getLocks(this.$route.params.id).then(res=>{
+        this.loadingLock = false;
+        if (res.code == 200) {
+            this.lockList = res.content;
+          }
+      }).catch((e) =>{
+        this.loadingLock = false;
       })
     }
   },
@@ -261,11 +353,23 @@ export default {
           this.formData = res.content;
           this.formData.organizationName =res.content.organizationInfo.organizationName; 
           this.formData.status = this.formData.status + '';
+          this.statusTitle = `实名信息——${this.formData.displayStatus}`
         }else{
             
         }
     }).catch(()=>{
         
+    })
+
+    this.handleGetLocks();
+    getAllLocks().then(res=>{
+      if(res.code == 200){
+        this.allLockList = res.content;
+        this.lockColumns=[];
+        this.allLockList.forEach((item) => {
+          this.lockColumns.push(item.lockId)
+        });
+      }
     })
   },
 
@@ -273,7 +377,6 @@ export default {
 </script>
 
 <style lang='less' scoped>
-
 .button-wrap{
   padding:10px;
 }
@@ -334,4 +437,28 @@ export default {
     }
   }
 }
+.lockitem{
+  position: relative;
+  span{
+    display: inline-block;
+    
+  }
+  .lock-text{
+    width: 5rem;
+    text-align: left;
+  }
+  .icon-clear{
+    position: absolute;
+    display: inline-block;
+    width:0.53rem;
+    height:0.53rem;
+    top: 50%;
+    margin-top: -0.26rem;
+    right:.5rem;
+    background: #fff;
+    background-image: url("../../assets/imgs/clear.svg");
+    background-size: cover;
+  }
+}
+
 </style>

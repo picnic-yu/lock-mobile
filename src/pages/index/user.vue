@@ -35,7 +35,7 @@
                 v-infinite-scroll="loadMore"
                 infinite-scroll-disabled="loading"
                 infinite-scroll-distance="10">
-                <li class='item title' >
+                <li class='item title' :key='1'>
                     <span class='number'>
                         姓名/手机号
                     </span>
@@ -97,7 +97,11 @@ export default {
 
     },
 
-    watch: {},
+    watch: {
+        listData(value){
+            console.log(value)
+        }
+    },
 
     methods: {
         loadMore() {
@@ -143,7 +147,8 @@ export default {
                     this.total = 0
                     this.listData = [];
                 }
-            }).catch(()=>{
+            }).catch((e)=>{
+                console.log(e)
                this.listData = [];
             })
         }
@@ -243,7 +248,7 @@ export default {
             overflow: auto;
             .title{
                 background-color: rgba(211, 211, 211, 1);
-                position:fixed;
+                // position:fixed;
             }
             .list-content{
                 .number{

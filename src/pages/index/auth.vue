@@ -301,7 +301,7 @@ export default {
             overflow: auto;
             .title{
                 background-color: rgba(211, 211, 211, 1);
-                position:fixed;
+                // position:fixed;
             }
             .list-content{
                 .number{
